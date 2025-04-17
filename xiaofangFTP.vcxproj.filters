@@ -18,6 +18,9 @@
     <Filter Include="ui">
       <UniqueIdentifier>{591f2786-b2a1-47f8-8323-793f4e1ce691}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{b883836a-b31a-4e51-b4aa-7888d8e509b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="xiaofangLog\AsyncLog.h">
@@ -41,10 +44,49 @@
     <ClInclude Include="Preference.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="Processor.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="LogonTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="ConnectTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="UIProxy.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="CharChecker.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtocolParser.h">
+      <Filter>network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xiaofangFTP.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Processor.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="LogonTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="ConnectTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="UIProxy.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="FTPServer.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="CharChecker.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

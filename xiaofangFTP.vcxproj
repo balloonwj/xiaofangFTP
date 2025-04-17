@@ -106,7 +106,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -131,15 +131,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CharChecker.h" />
+    <ClInclude Include="ConnectTask.h" />
     <ClInclude Include="FTPServer.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="LogonTask.h" />
     <ClInclude Include="Preference.h" />
+    <ClInclude Include="Processor.h" />
+    <ClInclude Include="ProtocolParser.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="UIProxy.h" />
     <ClInclude Include="xiaofangFTP.h" />
     <ClInclude Include="xiaofangLog\AsyncLog.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CharChecker.cpp" />
+    <ClCompile Include="ConnectTask.cpp" />
+    <ClCompile Include="FTPServer.cpp" />
+    <ClCompile Include="LogonTask.cpp" />
+    <ClCompile Include="Processor.cpp" />
+    <ClCompile Include="UIProxy.cpp" />
     <ClCompile Include="xiaofangFTP.cpp" />
   </ItemGroup>
   <ItemGroup>

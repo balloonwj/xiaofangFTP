@@ -7,11 +7,13 @@
 #ifndef LOGON_TASK_H_
 #define LOGON_TASK_H_
 
-class LogonTask
+#include "Task.h"
+
+class LogonTask : public Task
 {
 public:
-    LogonTask();
-    ~LogonTask();
+    LogonTask() = default;
+    ~LogonTask() = default;
 
 public:
     void doTask() override;

@@ -4,6 +4,9 @@
 #include "framework.h"
 #include "xiaofangFTP.h"
 
+#include "Processor.h"
+#include "UIProxy.h"
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -29,7 +32,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     CAsyncLog::init("xiaofangFTP");
 
 
+    Processor::getInstance().init();
+
     LOGI("xiaofangFTP started......");
+
+
 
     // TODO: Place code here.
 
@@ -57,6 +64,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
+
+    Processor::getInstance().uninit();
+
+    CAsyncLog::uninit();
 
     return (int)msg.wParam;
 }
@@ -179,6 +190,12 @@ INT_PTR CALLBACK SiteManagerProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
     switch (message)
     {
     case WM_INITDIALOG:
+
+        SetDlgItemText(hDlg, IDC_IP, _T("127.0.0.1"));
+        SetDlgItemText(hDlg, IDC_PORT, _T("21"));
+        SetDlgItemText(hDlg, IDC_USERNAME, _T("zhangxf"));
+        SetDlgItemText(hDlg, IDC_PASSWORD, _T("123"));
+
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
@@ -202,7 +219,14 @@ INT_PTR CALLBACK SiteManagerProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             TCHAR szPassword[32];
             GetDlgItemText(hDlg, IDC_PASSWORD, szPassword, 32);
 
-            int k = 0;
+            std::wstring ip(szIP);
+            uint16_t port = static_cast<uint16_t>(std::wcstol(szPort, NULL, 10));
+            std::wstring userName(szUserName);
+            std::wstring password(szPassword);
+
+            UIProxy::getInstance().connect(ip, port, szUserName, password);
+
+            EndDialog(hDlg, LOWORD(wParam));
         }
 
         break;
