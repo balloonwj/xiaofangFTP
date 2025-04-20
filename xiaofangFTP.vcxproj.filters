@@ -88,6 +88,9 @@
     <ClCompile Include="CharChecker.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="ProtocolParser.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xiaofangFTP.rc">

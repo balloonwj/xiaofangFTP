@@ -6,6 +6,8 @@
 
 #include "FTPServer.h"
 
+#include <functional>
+
 #include "CharChecker.h"
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -16,6 +18,20 @@ FTPServer& FTPServer::getInstance()
 {
     static FTPServer ftpServer;
     return ftpServer;
+}
+
+void FTPServer::startNetworkThread()
+{
+    m_running = true;
+
+    m_spNetworkThread = std::make_unique<std::thread>(std::bind(&FTPServer::networkThreadFunc, this));
+}
+
+void FTPServer::stopNetworkThread()
+{
+    m_running = false;
+
+    m_spNetworkThread->join();
 }
 
 bool FTPServer::connect(const std::string& ip, uint16_t port, int timeout /*= 3*/)
@@ -87,12 +103,10 @@ bool FTPServer::recvBuf()
     if (!m_bConnected)
         return false;
 
-    std::string recvBuf;
-
     while (true)
     {
         char buf[64] = { 0 };
-        int bytesRecv = recv(m_hSocket, buf, 1024, 0);
+        int bytesRecv = recv(m_hSocket, buf, 64, 0);
         if (bytesRecv == 0)
         {
             return false;
@@ -111,126 +125,30 @@ bool FTPServer::recvBuf()
         }
 
         //bytesRecv > 0
-        recvBuf.append(buf, bytesRecv);
+        m_recvBuf.append(buf, bytesRecv);
     }
 
 
-    //解包
-    if (!decodePackage(recvBuf))
+    std::vector<ResponseLine> responseLines;
+
+    DecodePackageResult result = m_protocolParser.parseFTPResponse(m_recvBuf, responseLines);
+    if (result == DecodePackageResult::FAULT)
     {
+        //TODO: 关闭连接，并重试
+
         return false;
     }
-
-    return true;
-}
-
-DecodePackageResult FTPServer::decodePackage(std::string& recvBuf)
-{
-    int i = 0;
-    char ch;
-    while (true)
+    else if (result == DecodePackageResult::WANTMOREDATA)
     {
-        if (recvBuf.length() <= 4)
-        {
-            return DecodePackageResult::WANTMOREDATA;
-        }
-
-        if (CharChecker::isDigit(recvBuf[i]) &&
-            CharChecker::isDigit(recvBuf[i + 1]) &&
-            CharChecker::isDigit(recvBuf[i + 2]))
-        {
-            return DecodePackageResult::FAULT;
-        }
-
-        if (recvBuf[i + 3] == ' ')
-        {
-            //单行的响应
-            i++;
-            while (i < recvBuf.length())
-            {
-                if (recvBuf[i] == '\n')
-                {
-                    //找到了一个包的结尾
-                    std::string aPackage = recvBuf.substr(0, i + 1);
-                    recvBuf.erase(0, i + 1);
-                    i = 0;
-                    break;
-                }
-                else if (i >= MAX_RESPONSE_LENGTH)
-                {
-                    return DecodePackageResult::FAULT;
-                }
-            }
-
-            //继续解下一个包
-            continue;
-        }
-        else if (recvBuf[i + 3] == '-')
-        {
-            //多行的响应
-            i++;
-            while (i < recvBuf.length())
-            {
-                if (recvBuf[i] == '\n')
-                {
-                    if (i + 5 < recvBuf.length())
-                    {
-                        if (CharChecker::isDigit(recvBuf[i + 1]) &&
-                            CharChecker::isDigit(recvBuf[i + 2]) &&
-                            CharChecker::isDigit(recvBuf[i + 3]))
-                        {
-                            if (recvBuf[i + 4] == ' ')
-                            {
-                                //找到多行响应的最后一行
-                                i = i + 5;
-                                while (i < recvBuf.length())
-                                {
-                                    if (recvBuf[i] == '\n')
-                                    {
-                                        //找到了一个包的结尾
-                                        std::string aPackage = recvBuf.substr(0, i + 1);
-                                        recvBuf.erase(0, i + 1);
-                                        i = 0;
-                                        break;
-                                    }
-                                    else if (i >= MAX_RESPONSE_LENGTH)
-                                    {
-                                        return DecodePackageResult::FAULT;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //包不完整
-                            return DecodePackageResult::WANTMOREDATA;
-                        }
-                    }
-                    else
-                    {
-                        //包不完整
-                        return DecodePackageResult::WANTMOREDATA;
-                    }
-                    //找到了一个包的结尾
-                    std::string aPackage = recvBuf.substr(0, i + 1);
-                    recvBuf.erase(0, i + 1);
-                    i = 0;
-                    break;
-                }
-                else if (i >= MAX_RESPONSE_LENGTH)
-                {
-                    return DecodePackageResult::FAULT;
-                }
-            }
-        }
-        else
-        {
-            return DecodePackageResult::FAULT;
-        }
-
-
-
+        return true;
     }
+    else
+    {
+        //TODO: 成功拿到了包，交给界面展示即可
+
+        return true;
+    }
+
 }
 
 FTPServer::FTPServer()
@@ -243,4 +161,16 @@ FTPServer::FTPServer()
 FTPServer::~FTPServer()
 {
     ::WSACleanup();
+}
+
+void FTPServer::networkThreadFunc()
+{
+    while (m_running)
+    {
+        //建立socket连接
+
+        //查看是否有数据需要发送，有则发送
+
+        //判断是否有数据需要接收，有则收之，并解包，解包成功之后，反馈给UI层
+    }
 }

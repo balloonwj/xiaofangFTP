@@ -152,6 +152,7 @@
     <ClCompile Include="FTPServer.cpp" />
     <ClCompile Include="LogonTask.cpp" />
     <ClCompile Include="Processor.cpp" />
+    <ClCompile Include="ProtocolParser.cpp" />
     <ClCompile Include="UIProxy.cpp" />
     <ClCompile Include="xiaofangFTP.cpp" />
   </ItemGroup>

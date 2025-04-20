@@ -8,11 +8,13 @@
 #define FTP_SERVER_H_
 
 #include <cstdint>
+#include <memory>
 #include <string>
+#include <thread>
 
 #include <WinSock2.h>
 
-
+#include "ProtocolParser.h"
 
 class FTPServer final
 {
@@ -20,6 +22,10 @@ public:
     static FTPServer& getInstance();
 
 public:
+    void startNetworkThread();
+    void stopNetworkThread();
+
+
     bool logon(const char* ip, uint16_t port, const char* username, const char* password);
     std::string list();
 
@@ -44,12 +50,22 @@ private:
     FTPServer& operator=(const FTPServer& rhs) = delete;
     FTPServer& operator=(FTPServer&& rhs) = delete;
 
-    DecodePackageResult decodePackage(std::string& recvBuf);
+private:
+    void networkThreadFunc();
+
 
 private:
-    SOCKET  m_hSocket;
+    std::unique_ptr<std::thread>        m_spNetworkThread;
 
-    bool    m_bConnected{ false };
+    bool                                m_running{ false };
+
+    SOCKET                              m_hSocket;
+
+    bool                                m_bConnected{ false };
+
+    std::string                         m_recvBuf;
+
+    ProtocolParser                      m_protocolParser;
 };
 
 
