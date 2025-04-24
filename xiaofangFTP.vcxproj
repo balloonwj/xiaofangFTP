@@ -133,7 +133,7 @@
   <ItemGroup>
     <ClInclude Include="CharChecker.h" />
     <ClInclude Include="ConnectTask.h" />
-    <ClInclude Include="FTPServer.h" />
+    <ClInclude Include="FTPClient.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LogonTask.h" />
     <ClInclude Include="Preference.h" />
@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClCompile Include="CharChecker.cpp" />
     <ClCompile Include="ConnectTask.cpp" />
-    <ClCompile Include="FTPServer.cpp" />
+    <ClCompile Include="FTPClient.cpp" />
     <ClCompile Include="LogonTask.cpp" />
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="ProtocolParser.cpp" />

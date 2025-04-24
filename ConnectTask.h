@@ -15,7 +15,7 @@
 class ConnectTask : public Task
 {
 public:
-    ConnectTask(const std::wstring& ip, uint16_t port, const std::wstring& userName, std::wstring& password);
+    ConnectTask(const std::wstring& ip, uint16_t port, const std::wstring& userName, std::wstring& password, bool isPassiveMode);
     ~ConnectTask() = default;
 
 public:
@@ -27,4 +27,5 @@ private:
     uint16_t         m_port;
     std::wstring     m_userName;
     std::wstring     m_password;
+    bool             m_isPassiveMode{ false };
 };

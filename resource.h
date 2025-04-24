@@ -18,6 +18,8 @@
 #define IDC_IP                          1001
 #define IDC_PORT                        1002
 #define IDC_USERNAME                    1003
+#define IDC_CHECK1                      1004
+#define IDC_PASSIVEMODE                 1004
 #define IDM_SITEMANAGER                 32771
 #define IDC_STATIC                      -1
 
@@ -28,7 +30,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

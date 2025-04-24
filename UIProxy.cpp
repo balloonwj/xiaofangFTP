@@ -15,9 +15,11 @@ UIProxy& UIProxy::getInstance()
     return proxy;
 }
 
-void UIProxy::connect(const std::wstring& ip, uint16_t port, const std::wstring& userName, std::wstring& password)
+void UIProxy::connect(const std::wstring& ip, uint16_t port,
+    const std::wstring& userName, std::wstring& password,
+    bool isPassiveMode)
 {
-    ConnectTask* pTask = new ConnectTask(ip, port, userName, password);
+    ConnectTask* pTask = new ConnectTask(ip, port, userName, password, isPassiveMode);
 
     Processor::getInstance().addSendTask(pTask);
 }

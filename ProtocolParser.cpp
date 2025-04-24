@@ -195,6 +195,8 @@ DecodePackageResult ProtocolParser::parseFTPResponse(std::string& buf, std::vect
         {
             buf.erase(0, charCount);
 
+            m_parsePos = 0;
+
             return DecodePackageResult::SUCCESS;
         }
 

@@ -38,7 +38,7 @@
     <ClInclude Include="xiaofangFTP.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="FTPServer.h">
+    <ClInclude Include="FTPClient.h">
       <Filter>network</Filter>
     </ClInclude>
     <ClInclude Include="Preference.h">
@@ -82,7 +82,7 @@
     <ClCompile Include="UIProxy.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="FTPServer.cpp">
+    <ClCompile Include="FTPClient.cpp">
       <Filter>network</Filter>
     </ClCompile>
     <ClCompile Include="CharChecker.cpp">

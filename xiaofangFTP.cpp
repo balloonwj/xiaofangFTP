@@ -20,6 +20,7 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK SiteManagerProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+void ClearExpiredLog(PCTSTR);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -28,6 +29,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+    //清理过期的日志文件
+    ClearExpiredLog(_T(".log"));
 
     CAsyncLog::init("xiaofangFTP");
 
@@ -224,7 +228,10 @@ INT_PTR CALLBACK SiteManagerProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             std::wstring userName(szUserName);
             std::wstring password(szPassword);
 
-            UIProxy::getInstance().connect(ip, port, szUserName, password);
+            BOOL bPassiveMode = IsDlgButtonChecked(hDlg, IDC_PASSIVEMODE);
+
+
+            UIProxy::getInstance().connect(ip, port, szUserName, password, (bPassiveMode ? true : false));
 
             EndDialog(hDlg, LOWORD(wParam));
         }
@@ -254,4 +261,47 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void ClearExpiredLog(PCTSTR pszFileSuffixName)
+{
+    if (pszFileSuffixName == NULL)
+        return;
+
+
+    TCHAR szExePath[MAX_PATH] = { 0 };
+    GetModuleFileName(NULL, szExePath, MAX_PATH);
+    for (int i = _tcslen(szExePath) - 1; i >= 0; --i)
+    {
+        if (szExePath[i] == _T('\\'))
+        {
+            szExePath[i] = _T('\0');
+            break;
+        }
+    }
+
+    WIN32_FIND_DATA win32FindData = { 0 };
+    TCHAR szLogFilePath[MAX_PATH] = { 0 };
+    _stprintf_s(szLogFilePath, MAX_PATH, _T("%s\\*%s"), szExePath, pszFileSuffixName);
+    HANDLE hFindFile = ::FindFirstFile(szLogFilePath, &win32FindData);
+    if (hFindFile == INVALID_HANDLE_VALUE)
+        return;
+
+    do
+    {
+        if (_tcsicmp(win32FindData.cFileName, _T(".")) != 0 ||
+            _tcsicmp(win32FindData.cFileName, _T("..")) != 0)
+        {
+            memset(szLogFilePath, 0, sizeof(szLogFilePath));
+            _stprintf_s(szLogFilePath, MAX_PATH, _T("%s\\%s"), szExePath, win32FindData.cFileName);
+            //这里不用检测是否删除成功,因为最新的一个log是我们需要的,不能删除,它正被此进程占用着,所以删不掉
+            ::DeleteFile(szLogFilePath);
+        }
+
+        if (!::FindNextFile(hFindFile, &win32FindData))
+            break;
+
+    } while (true);
+
+    ::FindClose(hFindFile);
 }
