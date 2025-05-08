@@ -34,11 +34,21 @@ public:
     void startNetworkThread();
     void stopNetworkThread();
 
+    bool connectWithResponse();
 
-    bool logon(const char* ip, uint16_t port, const char* username, const char* password);
+    bool logon(/*const char* username, const char* password*/);
+
+    std::string pwd();
+
+    bool pasv();
+
+    bool cwd(const std::string& targetDir);
+
+    bool del(const std::string& targetFileOrDir);
+
     std::string list();
 
-    bool cwd();
+
 
     bool upload();
     bool download();
@@ -66,8 +76,13 @@ private:
 
     bool connect(int timeout = 3);
 
-    bool sendBuf();
-    bool recvBuf();
+    void close();
+
+    bool sendBuf(std::string& buf);
+    bool recvBuf(std::vector<ResponseLine>& responseLines);
+
+    //判断是否有数据需要接收
+    bool checkReadable(int timeoutSec = 3);
 
     DecodePackageResult decodePackage();
 

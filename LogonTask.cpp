@@ -6,8 +6,10 @@
 
 #include "LogonTask.h"
 
+#include "FTPClient.h"
+
 
 void LogonTask::doTask()
 {
-    //组装登录数据，组装完成之后交给网络层
+    FTPClient::getInstance().logon();
 }

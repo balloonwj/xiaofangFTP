@@ -7,7 +7,11 @@
 #include "UIProxy.h"
 
 #include "ConnectTask.h"
+#include "CwdTask.h"
+#include "EnterPassiveModeTask.h"
+#include "LogonTask.h"
 #include "Processor.h"
+#include "PwdTask.h"
 
 UIProxy& UIProxy::getInstance()
 {
@@ -19,7 +23,22 @@ void UIProxy::connect(const std::wstring& ip, uint16_t port,
     const std::wstring& userName, std::wstring& password,
     bool isPassiveMode)
 {
-    ConnectTask* pTask = new ConnectTask(ip, port, userName, password, isPassiveMode);
+    ConnectTask* pConnectTask = new ConnectTask(ip, port, userName, password, isPassiveMode);
+    Processor::getInstance().addSendTask(pConnectTask);
 
-    Processor::getInstance().addSendTask(pTask);
+    LogonTask* pLogonTask = new LogonTask();
+    Processor::getInstance().addSendTask(pLogonTask);
+
+    PwdTask* pPwdTask = new PwdTask();
+    Processor::getInstance().addSendTask(pPwdTask);
+
+    if (isPassiveMode)
+    {
+        EnterPassiveModeTask* pEnterPassiveModeTask = new EnterPassiveModeTask();
+        Processor::getInstance().addSendTask(pEnterPassiveModeTask);
+    }
+
+    //TODO: 仅用于测试，后续移除
+    CwdTask* pCwdTask = new CwdTask("xiaofangFTP");
+    Processor::getInstance().addSendTask(pCwdTask);
 }

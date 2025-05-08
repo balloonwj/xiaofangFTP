@@ -65,6 +65,18 @@
     <ClInclude Include="ProtocolParser.h">
       <Filter>network</Filter>
     </ClInclude>
+    <ClInclude Include="PwdTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="EnterPassiveModeTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="CwdTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="DeleteTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xiaofangFTP.cpp">
@@ -90,6 +102,18 @@
     </ClCompile>
     <ClCompile Include="ProtocolParser.cpp">
       <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="PwdTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="EnterPassiveModeTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="CwdTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="DeleteTask.cpp">
+      <Filter>processor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

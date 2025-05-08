@@ -35,4 +35,6 @@ void ConnectTask::doTask()
 
     FTPClient::getInstance().setServerInfo(ip, m_port, userName, password, m_isPassiveMode);
     FTPClient::getInstance().startNetworkThread();
+
+    FTPClient::getInstance().connectWithResponse();
 }
