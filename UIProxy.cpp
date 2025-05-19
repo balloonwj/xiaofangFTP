@@ -9,7 +9,9 @@
 #include "ConnectTask.h"
 #include "CwdTask.h"
 #include "EnterPassiveModeTask.h"
+#include "ListTask.h"
 #include "LogonTask.h"
+#include "PortTask.h"
 #include "Processor.h"
 #include "PwdTask.h"
 
@@ -38,7 +40,14 @@ void UIProxy::connect(const std::wstring& ip, uint16_t port,
         Processor::getInstance().addSendTask(pEnterPassiveModeTask);
     }
 
+    ////TODO: 仅用于测试，后续移除
+    //CwdTask* pCwdTask = new CwdTask("xiaofangFTP");
+    //Processor::getInstance().addSendTask(pCwdTask);
+
     //TODO: 仅用于测试，后续移除
-    CwdTask* pCwdTask = new CwdTask("xiaofangFTP");
-    Processor::getInstance().addSendTask(pCwdTask);
+    PortTask* pPortTask = new PortTask();
+    Processor::getInstance().addSendTask(pPortTask);
+
+    ListTask* pListTask = new ListTask();
+    Processor::getInstance().addSendTask(pListTask);
 }

@@ -77,6 +77,15 @@
     <ClInclude Include="DeleteTask.h">
       <Filter>processor</Filter>
     </ClInclude>
+    <ClInclude Include="StringUtil.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PortTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
+    <ClInclude Include="ListTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xiaofangFTP.cpp">
@@ -113,6 +122,15 @@
       <Filter>processor</Filter>
     </ClCompile>
     <ClCompile Include="DeleteTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="StringUtil.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="PortTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="ListTask.cpp">
       <Filter>processor</Filter>
     </ClCompile>
   </ItemGroup>

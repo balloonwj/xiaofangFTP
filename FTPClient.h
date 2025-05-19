@@ -25,6 +25,11 @@ enum class FTPClientState
     LOGON
 };
 
+struct DirEntry
+{
+    std::string name;
+};
+
 class FTPClient final
 {
 public:
@@ -42,11 +47,13 @@ public:
 
     bool pasv();
 
+    bool port();
+
     bool cwd(const std::string& targetDir);
 
     bool del(const std::string& targetFileOrDir);
 
-    std::string list();
+    bool list();
 
 
 
@@ -72,8 +79,6 @@ private:
     FTPClient& operator=(FTPClient&& rhs) = delete;
 
 private:
-    void networkThreadFunc();
-
     bool connect(int timeout = 3);
 
     void close();
@@ -84,6 +89,13 @@ private:
     //判断是否有数据需要接收
     bool checkReadable(int timeoutSec = 3);
 
+    bool parseDataIPAndPort(const std::string& responseLine);
+
+    bool getDataServerAddr(std::string& dataIP, uint16_t& dataPort);
+
+    //创建数据通道监听server
+    bool createDataServer();
+
     DecodePackageResult decodePackage();
 
     bool parseState();
@@ -92,19 +104,22 @@ private:
 private:
     std::unique_ptr<std::thread>        m_spNetworkThread;
 
-    std::string                         m_ip;
-    uint16_t                            m_port;
+    std::string                         m_controlIP;
+    uint16_t                            m_controlPort;
     std::string                         m_userName;
     std::string                         m_password;
+    std::string                         m_dataIP;
+    uint16_t                            m_dataPort;
     bool                                m_isPassiveMode;
 
     bool                                m_running{ false };
 
     FTPClientState                      m_clientState{ FTPClientState::DISCONNECTED };
 
-    SOCKET                              m_hSocket;
+    //控制通道socket
+    SOCKET                              m_hControlSocket;
 
-    bool                                m_bConnected{ false };
+    bool                                m_bControlChannelConnected{ false };
 
     //收发缓冲区
     std::string                         m_sendBuf;
@@ -113,6 +128,11 @@ private:
     ProtocolParser                      m_protocolParser;
 
     std::vector<ResponseLine>           m_responseLines;
+
+    //数据通道socket
+    SOCKET                              m_hDataSocket{ INVALID_SOCKET };
+
+    bool                                m_bDataChannelConnected{ false };
 };
 
 

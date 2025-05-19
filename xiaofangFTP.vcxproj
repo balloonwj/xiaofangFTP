@@ -138,12 +138,15 @@
     <ClInclude Include="EnterPassiveModeTask.h" />
     <ClInclude Include="FTPClient.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="ListTask.h" />
     <ClInclude Include="LogonTask.h" />
+    <ClInclude Include="PortTask.h" />
     <ClInclude Include="Preference.h" />
     <ClInclude Include="Processor.h" />
     <ClInclude Include="ProtocolParser.h" />
     <ClInclude Include="PwdTask.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="StringUtil.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="UIProxy.h" />
@@ -157,10 +160,13 @@
     <ClCompile Include="DeleteTask.cpp" />
     <ClCompile Include="EnterPassiveModeTask.cpp" />
     <ClCompile Include="FTPClient.cpp" />
+    <ClCompile Include="ListTask.cpp" />
     <ClCompile Include="LogonTask.cpp" />
+    <ClCompile Include="PortTask.cpp" />
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="ProtocolParser.cpp" />
     <ClCompile Include="PwdTask.cpp" />
+    <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="UIProxy.cpp" />
     <ClCompile Include="xiaofangFTP.cpp" />
   </ItemGroup>
