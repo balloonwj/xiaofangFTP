@@ -25,9 +25,18 @@ enum class FTPClientState
     LOGON
 };
 
+enum class FileType
+{
+    File,
+    Dir
+};
+
 struct DirEntry
 {
     std::string name;
+    int64_t     size;
+    std::string modify;
+    FileType    fileType;
 };
 
 class FTPClient final
@@ -96,9 +105,7 @@ private:
     //创建数据通道监听server
     bool createDataServer();
 
-    DecodePackageResult decodePackage();
-
-    bool parseState();
+    bool parseDirEntries(const std::string& dirInfo, std::vector<DirEntry>& entries);
 
 
 private:
@@ -129,7 +136,8 @@ private:
 
     std::vector<ResponseLine>           m_responseLines;
 
-    //数据通道socket
+    //数据通道监听socket
+    SOCKET                              m_hDataListenSocket{ INVALID_SOCKET };
     SOCKET                              m_hDataSocket{ INVALID_SOCKET };
 
     bool                                m_bDataChannelConnected{ false };

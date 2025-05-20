@@ -477,16 +477,84 @@ bool FTPClient::list()
         return false;
     }
 
+    bool success = false;
     for (const auto& line : responseLines)
     {
         if (line.isEnd) {
             if (line.statusCode == FILE_STATUS_OKAY_ABOUT_TO_OPEN_DATA_CONNECTION)
-                return true;
+            {
+                success = true;
+                break;
+            }
         }
     }
 
-    return false;
+    if (!success)
+        return true;
 
+    struct sockaddr_in clientaddr;
+    socklen_t clientaddrlen = sizeof(clientaddr);
+    //4. 接受客户端连接
+    m_hDataSocket = accept(m_hDataListenSocket, (struct sockaddr*)&clientaddr, &clientaddrlen);
+    if (m_hDataSocket < 0)
+        return false;
+
+    u_long argp = 1;
+    ioctlsocket(m_hDataSocket, FIONBIO, &argp);
+
+    int n;
+    std::string dataRecvBuf;
+    while (true)
+    {
+        char buf[4096] = { 0 };
+        n = recv(m_hDataSocket, buf, sizeof(buf), 0);
+        if (n > 0)
+        {
+            dataRecvBuf.append(buf, n);
+        }
+        else if (n < 0)
+        {
+            if (WSAGetLastError() == WSAEWOULDBLOCK)
+            {
+                continue;
+            }
+            else
+            {
+                closesocket(m_hDataListenSocket);
+                closesocket(m_hDataSocket);
+
+                m_bDataChannelConnected = false;
+
+                return false;
+            }
+        }
+        else
+        {
+            //recv函数返回0时表明对端已经发完数据了
+            closesocket(m_hDataListenSocket);
+            closesocket(m_hDataSocket);
+
+            m_bDataChannelConnected = false;
+
+            break;
+        }
+    }
+
+    //解析目录数据
+    std::vector<DirEntry> entries;
+    parseDirEntries(dataRecvBuf, entries);
+
+    LOGI("received dir info:");
+    for (const auto& entry : entries)
+    {
+        LOGI("name: %s, type: %s, size: %lld, modify: %s",
+            entry.name.c_str(),
+            entry.fileType == FileType::File ? "file" : "dir",
+            entry.size,
+            entry.modify);
+    }
+
+    return true;
 }
 
 bool FTPClient::sendBuf(std::string& buf)
@@ -656,7 +724,7 @@ bool FTPClient::getDataServerAddr(std::string& dataIP, uint16_t& dataPort)
     //通过数据连接的socket获取监听的端口号
     sockaddr_storage dataServerAddr;
     addrLen = sizeof(dataServerAddr);
-    res = getsockname(m_hDataSocket, (sockaddr*)&dataServerAddr, &addrLen);
+    res = getsockname(m_hDataListenSocket, (sockaddr*)&dataServerAddr, &addrLen);
     if (res == SOCKET_ERROR) {
         return false;
     }
@@ -670,8 +738,8 @@ bool FTPClient::getDataServerAddr(std::string& dataIP, uint16_t& dataPort)
 bool FTPClient::createDataServer()
 {
     //1.创建一个侦听socket
-    m_hDataSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (m_hDataSocket == SOCKET_ERROR)
+    m_hDataListenSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (m_hDataListenSocket == SOCKET_ERROR)
     {
         LOGE("Failed to create data socket");
         return false;
@@ -683,22 +751,77 @@ bool FTPClient::createDataServer()
     bindaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     //这里端口号设置为0，让操作系统自己分配一个可用的端口号
     bindaddr.sin_port = htons(0);
-    if (bind(m_hDataSocket, (struct sockaddr*)&bindaddr, sizeof(bindaddr)) == -1)
+    if (bind(m_hDataListenSocket, (struct sockaddr*)&bindaddr, sizeof(bindaddr)) == -1)
     {
         LOGE("Failed to bind data socket");
-        closesocket(m_hDataSocket);
+        closesocket(m_hDataListenSocket);
         return false;
     }
 
     //3.启动侦听
-    if (listen(m_hDataSocket, SOMAXCONN) == -1)
+    if (listen(m_hDataListenSocket, SOMAXCONN) == -1)
     {
         LOGE("Failed to listen on data socket");
-        closesocket(m_hDataSocket);
+        closesocket(m_hDataListenSocket);
         return false;
     }
 
     m_bDataChannelConnected = true;
+
+    return true;
+}
+
+bool FTPClient::parseDirEntries(const std::string& dirInfo, std::vector<DirEntry>& entries)
+{
+    //解析如下格式：
+    //type=file;modify=20250520130731;size=0; 1.txt\r\ntype=dir;modify=20250520130820; 2\r\ntype=file;modify=20250520130831;size=0; 3.png\r\n
+
+    std::vector<std::string> v;
+    StringUtil::split(dirInfo, v, "\r\n");
+    if (v.empty())
+        return false;
+
+    size_t modifyPos;
+    const int MODIFY_PREFIX_LENGTH = strlen("modify=");
+    const int SIZE_PREFIX_LENGTH = strlen("size=");
+    const size_t DIR_INFO_COUNT = 3;
+    const size_t FILE_INFO_COUNT = 4;
+    for (const auto& iter : v)
+    {
+        //iter格式：
+        //type=file;modify=20250520130731;size=0; 1.txt
+        std::vector<std::string> v2;
+        StringUtil::split(iter, v2, ";");
+        //目录类型为3个元素，文件类型为4个元素
+        if (v2.size() != DIR_INFO_COUNT && v2.size() != FILE_INFO_COUNT)
+            continue;
+
+        DirEntry entry;
+        if (v2[0] == "type=file")
+        {
+            //文件串格式：type=file;modify=20250520130731;size=0; 1.txt
+            //拆分之后有4个元素
+            entry.fileType = FileType::File;
+            entry.modify = v2[1].substr(MODIFY_PREFIX_LENGTH);
+
+            std::string sizeStr = v2[2].substr(SIZE_PREFIX_LENGTH);
+            entry.size = atoll(sizeStr.c_str());
+
+            entry.name = v2[3].substr(1);
+        }
+        else if (v2[0] == "type=dir")
+        {
+            //目录串格式：type=dir;modify=20250520130820; 2
+            //拆分之后有3个元素
+            entry.fileType = FileType::Dir;
+            entry.modify = v2[1].substr(MODIFY_PREFIX_LENGTH);;
+            entry.name = v2[2].substr(1);
+        }
+        else
+            continue;
+
+        entries.push_back(entry);
+    }
 
     return true;
 }
