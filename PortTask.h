@@ -1,5 +1,5 @@
 ﻿/**
- * @desc:   主动模式下与FTPServer协商ip地址与端口号人物，PortTask.h
+ * @desc:   主动模式下与FTPServer协商ip地址与端口号任务，PortTask.h
  * @author: zhangxf
  * @date:   2025.05.19
  */

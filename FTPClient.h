@@ -64,6 +64,12 @@ public:
 
     bool list();
 
+    bool upload(const std::string& localFilePath, const std::string& serverFileName);
+
+    bool mkdir(const std::string& path);
+
+    bool uploadDir(const std::string& path);
+
 
 
     bool upload();
@@ -106,6 +112,9 @@ private:
     bool createDataServer();
 
     bool parseDirEntries(const std::string& dirInfo, std::vector<DirEntry>& entries);
+
+    //用于非阻塞socket把数据发完
+    bool sendBytes(SOCKET s, char* buf, int bufLen);
 
 
 private:

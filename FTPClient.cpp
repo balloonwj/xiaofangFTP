@@ -557,6 +557,150 @@ bool FTPClient::list()
     return true;
 }
 
+bool FTPClient::upload(const std::string& localFilePath, const std::string& serverFileName)
+{
+    if (m_isPassiveMode)
+    {
+        //TODO: 被动模式下的拉取文件列表信息稍后处理, by zhangxf 2025.05.19
+        return false;
+    }
+
+    if (!m_bDataChannelConnected)
+        return false;
+
+    //发送MLSD命令
+    std::string req("STOR ");
+    req += serverFileName;
+    req += "\r\n";
+    if (!sendBuf(req))
+    {
+        close();
+        return false;
+    }
+
+    if (!checkReadable())
+    {
+        close();
+        return false;
+    }
+
+    std::vector<ResponseLine> responseLines;
+    if (!recvBuf(responseLines))
+    {
+        close();
+        return false;
+    }
+
+    bool success = false;
+    for (const auto& line : responseLines)
+    {
+        if (line.isEnd) {
+            if (line.statusCode == FILE_STATUS_OKAY_ABOUT_TO_OPEN_DATA_CONNECTION)
+            {
+                success = true;
+                break;
+            }
+        }
+    }
+
+    if (!success)
+        return true;
+
+    struct sockaddr_in clientaddr;
+    socklen_t clientaddrlen = sizeof(clientaddr);
+    //4. 接受客户端连接
+    m_hDataSocket = accept(m_hDataListenSocket, (struct sockaddr*)&clientaddr, &clientaddrlen);
+    if (m_hDataSocket < 0)
+        return false;
+
+    u_long argp = 1;
+    ioctlsocket(m_hDataSocket, FIONBIO, &argp);
+
+    //打开文件，读一段发一段，发完之后关闭数据连接的发通道
+
+    HANDLE hFile = CreateFileA(localFilePath.c_str(), GENERIC_READ,
+        FILE_SHARE_READ, NULL, OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL, 0);
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        closesocket(m_hDataListenSocket);
+        closesocket(m_hDataSocket);
+
+        m_bDataChannelConnected = false;
+
+        return false;
+    }
+
+    DWORD fileSizeHigh;
+    DWORD fileSizeLow = GetFileSize(hFile, &fileSizeHigh);
+    if (fileSizeLow == INVALID_FILE_SIZE)
+    {
+        CloseHandle(hFile);
+
+        closesocket(m_hDataListenSocket);
+        closesocket(m_hDataSocket);
+
+        m_bDataChannelConnected = false;
+
+        return false;
+    }
+
+    int64_t fileSize = ((static_cast<int64_t>(fileSizeHigh)) << 32) | fileSizeLow;
+
+    int64_t eachBytesToRead = 2048;
+    char fileBuf[2048];
+    DWORD bytesRead;
+    bool error = false;
+    bool ret;
+    int64_t remainingBytes = fileSize;
+    while (true)
+    {
+        if (remainingBytes <= eachBytesToRead)
+            eachBytesToRead = remainingBytes;
+
+        if (!ReadFile(hFile, fileBuf,
+            eachBytesToRead,
+            &bytesRead, NULL) || eachBytesToRead != bytesRead)
+        {
+            error = true;
+            break;
+        }
+
+        ret = sendBytes(m_hDataSocket, fileBuf, eachBytesToRead);
+        if (!ret)
+        {
+            error = true;
+            break;
+        }
+
+        remainingBytes = remainingBytes - eachBytesToRead;
+
+        LOGI("serverFileName: %s, remaining bytes: %lld", serverFileName.c_str(), remainingBytes);
+
+        //数据已经发完
+        if (remainingBytes == 0)
+            break;
+    }
+
+    CloseHandle(hFile);
+
+    closesocket(m_hDataListenSocket);
+    closesocket(m_hDataSocket);
+
+    m_bDataChannelConnected = false;
+
+    if (error)
+    {
+        LOGE("serverFileName: %s upload failed.", serverFileName.c_str());
+        return false;
+    }
+
+
+
+    LOGI("serverFileName: %s upload successfully.", serverFileName.c_str());
+    return true;
+}
+
 bool FTPClient::sendBuf(std::string& buf)
 {
     int n;
@@ -824,6 +968,37 @@ bool FTPClient::parseDirEntries(const std::string& dirInfo, std::vector<DirEntry
     }
 
     return true;
+}
+
+bool FTPClient::sendBytes(SOCKET s, char* buf, int bufLen)
+{
+    int pos = 0;
+    while (true)
+    {
+        int n = send(s, buf + pos, bufLen - pos, 0);
+        if (n == 0)
+        {
+            if (pos == bufLen)
+                return true;
+            else
+                return false;
+        }
+        else if (n > 0)
+        {
+            pos += n;
+            if (pos == bufLen)
+                return true;
+
+            continue;
+        }
+        else {
+            // n<0
+            if (WSAGetLastError() == WSAEWOULDBLOCK)
+                continue;
+            else
+                return false;
+        }
+    }
 }
 
 void FTPClient::setServerInfo(const std::string& ip, uint16_t port,

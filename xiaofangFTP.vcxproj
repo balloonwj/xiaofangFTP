@@ -150,6 +150,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="UIProxy.h" />
+    <ClInclude Include="UploadTask.h" />
     <ClInclude Include="xiaofangFTP.h" />
     <ClInclude Include="xiaofangLog\AsyncLog.h" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClCompile Include="PwdTask.cpp" />
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="UIProxy.cpp" />
+    <ClCompile Include="UploadTask.cpp" />
     <ClCompile Include="xiaofangFTP.cpp" />
   </ItemGroup>
   <ItemGroup>
