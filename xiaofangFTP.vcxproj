@@ -135,6 +135,7 @@
     <ClInclude Include="ConnectTask.h" />
     <ClInclude Include="CwdTask.h" />
     <ClInclude Include="DeleteTask.h" />
+    <ClInclude Include="DownloadTask.h" />
     <ClInclude Include="EnterPassiveModeTask.h" />
     <ClInclude Include="FTPClient.h" />
     <ClInclude Include="framework.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="ConnectTask.cpp" />
     <ClCompile Include="CwdTask.cpp" />
     <ClCompile Include="DeleteTask.cpp" />
+    <ClCompile Include="DownloadTask.cpp" />
     <ClCompile Include="EnterPassiveModeTask.cpp" />
     <ClCompile Include="FTPClient.cpp" />
     <ClCompile Include="ListTask.cpp" />

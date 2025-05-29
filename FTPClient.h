@@ -60,22 +60,22 @@ public:
 
     bool cwd(const std::string& targetDir);
 
+    bool mkdir(const std::string& serverDirName);
+
+    bool rename(const std::string& serverOldFileName, const std::string& serverNewFileName);
+
     bool del(const std::string& targetFileOrDir);
 
     bool list();
 
-    bool upload(const std::string& localFilePath, const std::string& serverFileName);
+    bool type(bool ascii);
 
-    bool mkdir(const std::string& path);
+    bool upload(const std::string& localFilePath, const std::string& serverFileName);
+    bool download(const std::string& localFilePath, const std::string& serverFileName);
 
     bool uploadDir(const std::string& path);
 
 
-
-    bool upload();
-    bool download();
-
-    bool setMode(bool passiveMode);
 
 
 
@@ -102,7 +102,7 @@ private:
     bool recvBuf(std::vector<ResponseLine>& responseLines);
 
     //判断是否有数据需要接收
-    bool checkReadable(int timeoutSec = 3);
+    bool checkReadable(SOCKET s, int timeoutSec = 3);
 
     bool parseDataIPAndPort(const std::string& responseLine);
 
@@ -115,6 +115,15 @@ private:
 
     //用于非阻塞socket把数据发完
     bool sendBytes(SOCKET s, char* buf, int bufLen);
+
+    bool listInActiveMode();
+    bool listInPassiveMode();
+
+    bool uploadInActiveMode(const std::string& localFilePath, const std::string& serverFileName);
+    bool uploadInPassiveMode(const std::string& localFilePath, const std::string& serverFileName);
+
+    bool downloadInActiveMode(const std::string& localFilePath, const std::string& serverFileName);
+    bool downloadInPassiveMode(const std::string& localFilePath, const std::string& serverFileName);
 
 
 private:

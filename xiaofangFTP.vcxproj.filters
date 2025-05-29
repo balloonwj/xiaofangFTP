@@ -89,6 +89,9 @@
     <ClInclude Include="UploadTask.h">
       <Filter>processor</Filter>
     </ClInclude>
+    <ClInclude Include="DownloadTask.h">
+      <Filter>processor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xiaofangFTP.cpp">
@@ -137,6 +140,9 @@
       <Filter>processor</Filter>
     </ClCompile>
     <ClCompile Include="UploadTask.cpp">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="DownloadTask.cpp">
       <Filter>processor</Filter>
     </ClCompile>
   </ItemGroup>

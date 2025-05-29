@@ -8,6 +8,7 @@
 
 #include "ConnectTask.h"
 #include "CwdTask.h"
+#include "DownloadTask.h"
 #include "EnterPassiveModeTask.h"
 #include "ListTask.h"
 #include "LogonTask.h"
@@ -52,6 +53,9 @@ void UIProxy::connect(const std::wstring& ip, uint16_t port,
     //ListTask* pListTask = new ListTask();
     //Processor::getInstance().addSendTask(pListTask);
 
-    UploadTask* pUploadTask = new UploadTask("E:\\CppPractice\\36-37-38-39-40-41-42-43-44-45-46-47-48-49-50-51-52-53-54-55-56-57-58-59th\\pdf\\cpp17indetail.pdf", "cpp17indetail.pdf");
-    Processor::getInstance().addSendTask(pUploadTask);
+    //UploadTask* pUploadTask = new UploadTask("E:\\CppPractice\\36-37-38-39-40-41-42-43-44-45-46-47-48-49-50-51-52-53-54-55-56-57-58-59-60th\\pdf\\cpp17indetail.pdf", "cpp17indetail.pdf");
+    //Processor::getInstance().addSendTask(pUploadTask);
+
+    DownloadTask* pDownload = new DownloadTask("E:\\xyz.pdf", "cpp17indetail.pdf");
+    Processor::getInstance().addSendTask(pDownload);
 }

@@ -28,6 +28,7 @@
  */
 DecodePackageResult ProtocolParser::parseFTPResponse(std::string& buf, std::vector<ResponseLine>& responseLines)
 {
+    //226 Successfully transferred "/cpp17indetail.pdf"
     char p;
     size_t bufLen = buf.length();
     size_t currentTextLength = 0;
