@@ -11,5 +11,6 @@
 
 void LogonTask::doTask()
 {
+
     FTPClient::getInstance().logon();
 }

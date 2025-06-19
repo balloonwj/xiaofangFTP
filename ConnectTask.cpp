@@ -11,9 +11,8 @@
 
 #include "FTPClient.h"
 
-ConnectTask::ConnectTask(const std::wstring& ip, uint16_t port,
-    const std::wstring& userName, std::wstring& password, bool isPassiveMode) :
-    m_ip(ip), m_port(port), m_userName(userName), m_password(password), m_isPassiveMode(isPassiveMode)
+ConnectTask::ConnectTask(const std::wstring& ip, uint16_t port) :
+    m_ip(ip), m_port(port)
 {
 
 }
@@ -22,8 +21,8 @@ void ConnectTask::doTask()
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::string ip = converter.to_bytes(m_ip);
-    std::string userName = converter.to_bytes(m_userName);
-    std::string password = converter.to_bytes(m_password);
+    //std::string userName = converter.to_bytes(m_userName);
+    //std::string password = converter.to_bytes(m_password);
 
     //if (!FTPClient::getInstance().connect(ip, m_port))
     //{
@@ -33,8 +32,5 @@ void ConnectTask::doTask()
 
     //FTPClient::getInstance().recvBuf();
 
-    FTPClient::getInstance().setServerInfo(ip, m_port, userName, password, m_isPassiveMode);
-    FTPClient::getInstance().startNetworkThread();
-
-    FTPClient::getInstance().connectWithResponse();
+    FTPClient::getInstance().connectWithResponse(ip, m_port);
 }
